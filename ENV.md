@@ -124,3 +124,5 @@ All variables below are set as Encrypted env vars in the Vercel project (`bests-
 - **GitHub repo:** `https://github.com/BestOlumese/cinema-app`
 
 `SENTRY_DSN` / `NEXT_PUBLIC_SENTRY_DSN` are also set (same DSN value in both — Sentry DSNs are not sensitive, they're meant to be embedded client-side). `SENTRY_AUTH_TOKEN` is still open — needed for source map upload at build time, not yet provisioned; error capture works without it, source maps just won't be de-minified in the Sentry UI until it's added.
+
+`POWERSYNC_INSTANCE_URL` / `NEXT_PUBLIC_POWERSYNC_URL` are set (`https://6a5d1af6367771958b490678.powersync.journeyapps.com`). Connection-only per Phase 0 scope — no Sync Rules yet, so `POWERSYNC_JWT_PRIVATE_KEY` / `POWERSYNC_JWT_KID` aren't needed until Phase 4. A dedicated read-only Postgres role (`powersync_role`, `REPLICATION` + `SELECT` on `public` schema only) and a publication (`powersync`, scoped to `public` schema tables only) were created directly on Neon for this — **not** the `neondb_owner` admin credentials.

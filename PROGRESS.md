@@ -90,6 +90,13 @@
 - CI task (from the earlier log entry) is now genuinely confirmed done, not just "should be fine."
 - Notes: Remaining Phase 0 tasks — PowerSync Cloud connection, Inngest. Next up: PowerSync.
 
+### 2026-07-19 — Phase 0 (cont.)
+- Task completed: PowerSync Cloud connection. Human signed up and created a PowerSync instance, no prior account. Before handing over a connection string, set up Postgres-side prerequisites directly on Neon: a dedicated least-privilege role (`powersync_role` — `REPLICATION` + `SELECT` on `public` schema only, not the `neondb_owner` admin credentials) and a publication (`powersync`).
+- **Caught mid-setup**: my first publication used `FOR ALL TABLES`, which — because Postgres publications aren't schema-scoped by default — also swept in a `neon_auth` schema neither of us knew existed on this Neon project. Investigated before proceeding: it's Neon's own "Neon Auth" platform feature, auto-provisioned, completely separate from our own Better Auth setup, including a `jwks` table shaped to hold private key material (0 rows, so nothing was actually exposed, but it would have replicated to PowerSync/box office SQLite devices if ever populated). Stopped, asked the human what to do with it — decision: leave Neon Auth alone/ignore it, don't build against it. Recreated the publication scoped to `FOR TABLES IN SCHEMA public` only, verified `powersync_role` has no `USAGE` grant on `neon_auth` at all. Documented the discovery in `DATABASE.md` §0 so nobody mistakes `neon_auth` for one of our own tables later.
+- Human connected PowerSync to Neon using the scoped role — confirmed successful in the PowerSync console. Cross-checked from the Postgres side (`pg_replication_slots`/`pg_stat_replication`) — no active logical slot yet, which is expected: PowerSync's connection test validates credentials/connectivity without creating a persistent replication slot until Sync Rules are deployed (Phase 4, correctly out of scope today).
+- Added `POWERSYNC_INSTANCE_URL`/`NEXT_PUBLIC_POWERSYNC_URL` to `.env` and Vercel (all 3 environments). `POWERSYNC_JWT_PRIVATE_KEY`/`POWERSYNC_JWT_KID` deliberately left undocumented — not needed until Phase 4.
+- Notes: Remaining Phase 0 task — Inngest (background jobs, confirm a test function runs). That's the last one before the full Phase 0 Definition of Done self-check.
+
 <!--
 Format:
 ### YYYY-MM-DD — Phase N

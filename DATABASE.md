@@ -9,6 +9,7 @@
 - Tenant-scoped tables carry `organizationId` and, where relevant, `branchId` — both required, both RLS-enforced.
 - Prefer soft state (`status` enum column) over hard deletes where audit history matters (bookings, films, staff).
 - Schema files live under `/db/schema/*.ts`, grouped by domain matching the sections below, re-exported from a single `/db/schema/index.ts`.
+- **`neon_auth` schema is not ours.** This Neon project has Neon's own "Neon Auth" platform feature enabled (own schema, own `jwks`/`project_config` tables) — discovered during Phase 0's PowerSync setup, never intentionally enabled, and not used by this app (we use Better Auth in the `public` schema instead, per `ARCHITECTURE.md` §2.2). Left in place but deliberately untouched and excluded from PowerSync's publication. Don't build anything against it.
 
 ---
 
