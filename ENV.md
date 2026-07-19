@@ -122,3 +122,5 @@ All variables below are set as Encrypted env vars in the Vercel project (`bests-
 
 - **Production URL:** `https://cinema-app-psi-sage.vercel.app`
 - **GitHub repo:** `https://github.com/BestOlumese/cinema-app`
+
+`SENTRY_DSN` / `NEXT_PUBLIC_SENTRY_DSN` are also set (same DSN value in both — Sentry DSNs are not sensitive, they're meant to be embedded client-side). `SENTRY_AUTH_TOKEN` is still open — needed for source map upload at build time, not yet provisioned; error capture works without it, source maps just won't be de-minified in the Sentry UI until it's added.

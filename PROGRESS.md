@@ -72,6 +72,14 @@
 - Verified: pushed to GitHub and confirmed via the Actions API that the workflow actually ran and completed with `conclusion: success` — not just "the YAML looks right."
 - Notes: Remaining Phase 0 tasks — Sentry, PowerSync Cloud connection, Inngest. Next up: Sentry.
 
+### 2026-07-19 — Phase 0 (cont.)
+- Task completed: Sentry. Human provided the DSN from their existing Sentry project. Wired `@sentry/nextjs` via the current `instrumentation.ts`/`src/instrumentation-client.ts` convention (not the deprecated `sentry.*.config.ts` files — those don't work under Turbopack, which this project uses by default), plus `global-error.tsx` for React render errors and `withSentryConfig` in `next.config.ts`.
+- Verified for real, not just "should work": added a temporary route that deliberately threw, ran it locally with Sentry debug logging on, confirmed the log showed `Captured error event` → `Flushing events...` → `Done flushing events`, then removed the debug flag and the temporary route.
+- Source map upload (`SENTRY_AUTH_TOKEN`) intentionally left unconfigured — flagged as an open item in `ENV.md` rather than guessed at, since it needs a separate auth token the human hasn't provided. Error capture works fully without it.
+- Added `SENTRY_DSN`/`NEXT_PUBLIC_SENTRY_DSN` to Vercel across all three environments and redeployed production.
+- Caught mid-task: the CI push for this commit failed on the `npm ci` step (exit 1, no further detail visible — GitHub's job-log API 403'd without admin/write access to the repo). Reproduced `npm ci` locally against the exact committed lockfile and it succeeded cleanly, so this looks like a transient CI runner issue rather than a real lockfile problem — re-verifying on the next push rather than assuming it's fixed.
+- Notes: Remaining Phase 0 tasks — PowerSync Cloud connection, Inngest. Next up: PowerSync. **Also confirm the CI run on the next push actually goes green before treating the CI task as done** — the last one failed and needs re-verification.
+
 <!--
 Format:
 ### YYYY-MM-DD — Phase N
