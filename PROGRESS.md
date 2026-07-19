@@ -59,6 +59,13 @@
 - No RLS or `branch`/`audit_log` tables yet — those are explicitly Phase 1 scope (`concerns/security.md` RLS rule applies once tenant-scoped app tables exist, which they don't yet beyond Better Auth's own `member`/`invitation`).
 - Notes: Remaining Phase 0 tasks — Deployment (Vercel), CI (GitHub Actions), Sentry, PowerSync Cloud connection, Inngest. Next up: Deployment.
 
+### 2026-07-19 — Phase 0 (cont.)
+- Task completed: Deployment. Created the GitHub repo (`https://github.com/BestOlumese/cinema-app`, human's call) and pushed the first real commit (everything from today — previously only the create-next-app initial commit existed locally). Human ran `vercel login`; from there I linked the Vercel project (`bests-projects-ccd0566e/cinema-app`, connected to the GitHub repo) and populated all 5 env vars (`DATABASE_URL`, `DATABASE_URL_UNPOOLED`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `NEXT_PUBLIC_APP_URL`) across Production/Preview/Development — `BETTER_AUTH_SECRET` uses a distinct generated value per environment, never reusing the local dev one.
+- Deployed to production twice (second deploy to bake in the `NEXT_PUBLIC_*` var, which is inlined at build time) — confirmed the live URL (`https://cinema-app-psi-sage.vercel.app`) renders the STYLE.md placeholder page correctly, and confirmed Better Auth actually works end-to-end against the live Neon DB in production (signed up a real test user via the deployed API, then deleted it).
+- Two asked-not-assumed decisions: used the human's own GitHub repo (didn't invent one), and confirmed Vercel CLI auth via `vercel whoami` rather than assuming login succeeded.
+- Open item logged in `ENV.md`: Preview's `BETTER_AUTH_URL`/`NEXT_PUBLIC_APP_URL` are pinned to the production alias as a placeholder since real preview deployments get unique per-deploy URLs — needs a `trustedOrigins` wildcard before auth is tested on a preview deployment (Phase 1).
+- Notes: Next unchecked Phase 0 task is CI — GitHub Actions workflow for lint/typecheck/test on every PR.
+
 <!--
 Format:
 ### YYYY-MM-DD — Phase N

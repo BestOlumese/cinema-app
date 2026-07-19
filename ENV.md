@@ -112,5 +112,13 @@
 
 1. Final choice between **Pusher and Ably** — both variable sets are documented above; delete the unused one once decided.
 2. **SMTP provider** for Nodemailer.
+3. **`BETTER_AUTH_URL` / `NEXT_PUBLIC_APP_URL` for Preview** are currently pinned to the stable production alias (`https://cinema-app-psi-sage.vercel.app`) as a placeholder — real Preview deployments get a unique per-deployment URL, so Better Auth's `trustedOrigins` will need a wildcard/pattern for `*.vercel.app` preview URLs before auth is actually exercised in a preview deployment. Deferred to Phase 1.
 
-Both should be resolved before Phase 0 is marked complete.
+Both (1) and (2) should be resolved before Phase 0 is marked complete.
+
+## Current Values (Vercel)
+
+All variables below are set as Encrypted env vars in the Vercel project (`bests-projects-ccd0566e/cinema-app`) across Production, Preview, and Development — `DATABASE_URL`, `DATABASE_URL_UNPOOLED`, `BETTER_AUTH_SECRET` (a distinct value per environment), `BETTER_AUTH_URL`, `NEXT_PUBLIC_APP_URL`. Local values live in `.env` (gitignored).
+
+- **Production URL:** `https://cinema-app-psi-sage.vercel.app`
+- **GitHub repo:** `https://github.com/BestOlumese/cinema-app`
