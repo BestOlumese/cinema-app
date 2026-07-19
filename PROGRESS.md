@@ -66,6 +66,12 @@
 - Open item logged in `ENV.md`: Preview's `BETTER_AUTH_URL`/`NEXT_PUBLIC_APP_URL` are pinned to the production alias as a placeholder since real preview deployments get unique per-deploy URLs — needs a `trustedOrigins` wildcard before auth is tested on a preview deployment (Phase 1).
 - Notes: Next unchecked Phase 0 task is CI — GitHub Actions workflow for lint/typecheck/test on every PR.
 
+### 2026-07-19 — Phase 0 (cont.)
+- Task completed: CI. There was no test suite yet, so asked the human whether to scaffold Vitest with a real test or a no-op test step — chose to scaffold: installed Vitest, added `vitest.config.ts` (with `@`/`@db` aliases matching `tsconfig.json`), and wrote `src/lib/permissions.test.ts` — a real structural test of the access-control statement (resource/action shape, the five org-scoped roles exist, Site Admin's baseline permissions authorize correctly, the other four roles' cinema-specific permissions correctly do NOT authorize yet since that's Phase 1's job). Not a placeholder — it actually documents and guards this session's permission design.
+- Added `.github/workflows/ci.yml` (lint → typecheck → test, triggered on every PR and on push to main/master).
+- Verified: pushed to GitHub and confirmed via the Actions API that the workflow actually ran and completed with `conclusion: success` — not just "the YAML looks right."
+- Notes: Remaining Phase 0 tasks — Sentry, PowerSync Cloud connection, Inngest. Next up: Sentry.
+
 <!--
 Format:
 ### YYYY-MM-DD — Phase N
