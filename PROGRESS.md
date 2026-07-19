@@ -80,6 +80,16 @@
 - Caught mid-task: the CI push for this commit failed on the `npm ci` step (exit 1, no further detail visible — GitHub's job-log API 403'd without admin/write access to the repo). Reproduced `npm ci` locally against the exact committed lockfile and it succeeded cleanly, so this looks like a transient CI runner issue rather than a real lockfile problem — re-verifying on the next push rather than assuming it's fixed.
 - Notes: Remaining Phase 0 tasks — PowerSync Cloud connection, Inngest. Next up: PowerSync. **Also confirm the CI run on the next push actually goes green before treating the CI task as done** — the last one failed and needs re-verification.
 
+### 2026-07-19 — Phase 0 (cont.)
+- CI went red 4 times in a row after the Sentry commit — root-caused and fixed, documented in detail since this was a genuinely tricky one:
+  1. `npm ci` failed in CI (but not locally) with "Missing: webpack@5.108.4 from lock file" — `@sentry/webpack-plugin` (pulled in transitively by `@sentry/nextjs`) declares `webpack >=5.0.0` as a **required** (non-optional) peer dependency, but local npm wasn't writing a lockfile entry for it.
+  2. First fix attempt — explicitly adding `webpack` as a devDependency — traded one bug for another: it pulled in `ajv-keywords@5` (needs `ajv@^8.8.2`), and npm's hoisting incorrectly deduped it against ESLint's `ajv@6.15.0`, producing an actually-invalid tree (`npm ls ajv` failed with `ELSPROBLEMS`) that `npm install` silently accepted but `npm ci` correctly rejected.
+  3. Also discovered a real environment mismatch along the way: CI runs `npm 11.16.0` (bundled with the workflow's `node-version: 24`), local was `10.9.2` — upgraded local npm to match, since different npm majors resolve/record peer deps differently enough to produce divergent lockfiles from the identical source files.
+  4. Real fix: we don't actually need webpack installed at all — Sentry's webpack integration no-ops under Turbopack (confirmed via the SDK's own doc comments), so the peer requirement is pure install-time bookkeeping with zero runtime effect. Added `.npmrc` with `legacy-peer-deps=true`, which stops npm from auto-installing it and removes the conflicting `ajv-keywords` subtree entirely. Verified clean: `npm ci`, `npm ls ajv`, `tsc --noEmit`, `eslint`, `vitest`, and `next build` all pass; CI confirmed green (`conclusion: success`) via direct API check, not assumed.
+- Human provided a fine-grained GitHub PAT (Actions: read-only, scoped to this repo) so future CI failures can be self-diagnosed directly instead of round-tripping error text through the human — used only for reading job logs, never for pushing/writing. Not stored in the repo; only used in-session.
+- CI task (from the earlier log entry) is now genuinely confirmed done, not just "should be fine."
+- Notes: Remaining Phase 0 tasks — PowerSync Cloud connection, Inngest. Next up: PowerSync.
+
 <!--
 Format:
 ### YYYY-MM-DD — Phase N
