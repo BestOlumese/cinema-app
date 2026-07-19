@@ -97,6 +97,24 @@
 - Added `POWERSYNC_INSTANCE_URL`/`NEXT_PUBLIC_POWERSYNC_URL` to `.env` and Vercel (all 3 environments). `POWERSYNC_JWT_PRIVATE_KEY`/`POWERSYNC_JWT_KID` deliberately left undocumented — not needed until Phase 4.
 - Notes: Remaining Phase 0 task — Inngest (background jobs, confirm a test function runs). That's the last one before the full Phase 0 Definition of Done self-check.
 
+### 2026-07-19 — Phase 0 (cont.)
+- Task completed: Inngest. Human had no prior account, signed up, provided an Event Key and Signing Key — first paste had both fields identical (a copy-paste mistake), caught and asked for a re-check before wiring anything up rather than proceeding with a clearly-wrong credential.
+- Added `src/lib/inngest.ts` (client), `src/app/api/inngest/route.ts` (Next.js serve handler), `src/inngest/functions.ts` (currently an empty array — first real function lands with whichever Phase needs one).
+- Verified for real: temporarily added a test function, ran the Next.js dev server with `INNGEST_DEV=1` plus the real keys, ran `npx inngest-cli dev` pointed at it, sent a test event, and confirmed via the dev server's own `/v1/events/{id}/runs` API that the run's `status` was `"Completed"` — not just "the HTTP calls looked right." Removed the test function afterward, re-verified `tsc`/`eslint` clean.
+- Added `INNGEST_EVENT_KEY`/`INNGEST_SIGNING_KEY` to Vercel (all 3 environments), redeployed production, confirmed `/api/inngest` correctly returns `401 Unauthorized` for an unsigned GET (expected/correct production behavior, not a bug).
+- **Closed the one remaining DoD gap that had been silently skipped**: phase-0.md says "CI pipeline passes on a **test PR**" — every CI verification so far had been via direct pushes to master, never an actual `pull_request` event. Opened a real PR (used the Inngest work itself as the content, rather than a throwaway change), had the human merge it, then verified independently via the GitHub API: `event: pull_request`, `conclusion: success`. Synced master, deleted the test branch both locally and on origin.
+- **Full Phase 0 Definition of Done self-check — all 9 items verified, checklist updated in `phases/phase-0.md`:**
+  - [x] App deploys successfully to Vercel
+  - [x] Placeholder page renders STYLE.md tokens correctly
+  - [x] Test user signs up via Better Auth, test org created
+  - [x] Drizzle reads/writes to Neon
+  - [x] CI passes on a test PR
+  - [x] Sentry captures a deliberately-thrown error
+  - [x] PowerSync shows a successful Neon connection
+  - [x] Inngest runs a test function successfully
+  - [x] `ENV.md` lists every env var used
+- Notes: **Phase 0 self-check is complete but NOT yet approved.** Per AGENTS.md §0.7, Phase 1 cannot start — not even scaffolding — until the human types the exact approval string `APPROVED: PHASE 0`. Waiting on that before touching anything Phase 1-scoped (Core Auth & Multi-Tenancy).
+
 <!--
 Format:
 ### YYYY-MM-DD — Phase N

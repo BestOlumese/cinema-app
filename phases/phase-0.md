@@ -41,14 +41,14 @@ Get a deployed, empty, correctly-configured skeleton running — no product feat
 
 ## Definition of Done
 
-- [ ] App deploys successfully to Vercel
-- [ ] A placeholder page renders using STYLE.md tokens correctly (accent red, Geist fonts, correct radius/shadows visible)
-- [ ] A test user can sign up via Better Auth and a test organization is created
-- [ ] Drizzle can read/write to Neon Postgres
-- [ ] CI pipeline passes on a test PR
-- [ ] Sentry captures a deliberately-thrown test error
-- [ ] PowerSync Cloud shows a successful connection to the Neon database
-- [ ] Inngest runs a test background function successfully
-- [ ] `ENV.md` exists and lists every environment variable used so far
+- [x] App deploys successfully to Vercel — `https://cinema-app-psi-sage.vercel.app`
+- [x] A placeholder page renders using STYLE.md tokens correctly (accent red, Geist fonts, correct radius/shadows visible) — verified via screenshots at 375px/1440px
+- [x] A test user can sign up via Better Auth and a test organization is created — verified locally and against production
+- [x] Drizzle can read/write to Neon Postgres — verified via real read/write query
+- [x] CI pipeline passes on a test PR — PR #1, `pull_request` event, `conclusion: success` (verified via GitHub API, not assumed)
+- [x] Sentry captures a deliberately-thrown test error — verified via debug logs (`Captured error event` → `Flushing events...` → `Done flushing events`)
+- [x] PowerSync Cloud shows a successful connection to the Neon database — verified in PowerSync console with a dedicated least-privilege role
+- [x] Inngest runs a test background function successfully — verified via Inngest Dev Server's run-status API (`status: Completed`)
+- [x] `ENV.md` exists and lists every environment variable used so far
 
 **Do not proceed to Phase 1 until this checklist is complete AND the human has approved with `APPROVED: PHASE 0`.**
