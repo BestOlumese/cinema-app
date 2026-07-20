@@ -90,6 +90,9 @@ export const organization = pgTable(
     logo: text("logo"),
     createdAt: timestamp("created_at").notNull(),
     metadata: text("metadata"),
+    tenancyType: text("tenancy_type", {
+      enum: ["independent", "chain"],
+    }).notNull(),
   },
   (table) => [uniqueIndex("organization_slug_uidx").on(table.slug)],
 );

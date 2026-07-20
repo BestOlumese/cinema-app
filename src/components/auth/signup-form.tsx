@@ -18,18 +18,24 @@ import {
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/auth/password-input";
 import { PasswordStrengthMeter } from "@/components/auth/password-strength-meter";
+import { TenancyChoice } from "@/components/auth/tenancy-choice";
 import { authClient } from "@/lib/auth-client";
 import { slugify } from "@/lib/slug";
 import { signUpSchema, type SignUpValues } from "@/lib/validations/auth";
 
-async function createOrganizationWithUniqueSlug(name: string) {
-  const base = slugify(name) || "cinema";
+async function createOrganizationWithUniqueSlug(values: SignUpValues) {
+  const base = slugify(values.organizationName) || "cinema";
   let attempt = base;
 
   for (let i = 0; i < 5; i++) {
     const { data, error } = await authClient.organization.create({
-      name,
+      name: values.organizationName,
       slug: attempt,
+      tenancyType: values.tenancyType,
+      metadata:
+        values.tenancyType === "chain" && values.branchName
+          ? { branchName: values.branchName }
+          : undefined,
     });
 
     if (!error) return data;
@@ -54,11 +60,14 @@ export function SignupForm() {
       password: "",
       confirmPassword: "",
       organizationName: "",
+      tenancyType: undefined as unknown as SignUpValues["tenancyType"],
+      branchName: "",
       acceptTerms: false,
     },
   });
 
   const password = form.watch("password");
+  const tenancyType = form.watch("tenancyType");
 
   const signUpMutation = useMutation({
     mutationFn: async (values: SignUpValues) => {
@@ -74,7 +83,7 @@ export function SignupForm() {
         );
       }
 
-      await createOrganizationWithUniqueSlug(values.organizationName);
+      await createOrganizationWithUniqueSlug(values);
     },
     onSuccess: () => {
       toast.success("Welcome to CineSuite — your cinema account is ready.");
@@ -156,6 +165,29 @@ export function SignupForm() {
           />
           <FieldError errors={[form.formState.errors.organizationName]} />
         </Field>
+
+        <Field data-invalid={!!form.formState.errors.tenancyType}>
+          <FieldLabel>Cinema type</FieldLabel>
+          <TenancyChoice
+            value={tenancyType}
+            onChange={(value) =>
+              form.setValue("tenancyType", value, { shouldValidate: true })
+            }
+          />
+          <FieldError errors={[form.formState.errors.tenancyType]} />
+        </Field>
+
+        {tenancyType === "chain" && (
+          <Field data-invalid={!!form.formState.errors.branchName}>
+            <FieldLabel htmlFor="branchName">Head office name</FieldLabel>
+            <Input
+              id="branchName"
+              className="h-11"
+              {...form.register("branchName")}
+            />
+            <FieldError errors={[form.formState.errors.branchName]} />
+          </Field>
+        )}
 
         <Field
           orientation="horizontal"

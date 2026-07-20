@@ -4,7 +4,7 @@
 
 ## 0. Conventions
 
-- Primary keys: `uuid` with `defaultRandom()`.
+- Primary keys: `uuid` with `defaultRandom()` — **except** Better Auth's own tables (`user`, `session`, `account`, `organization`, `member`, `invitation`, `verification`), which use `text` IDs per Better Auth's own convention (confirmed against the actual generated schema, not assumed). Any table with a foreign key into one of those tables must type that column `text` to match, not `uuid` — this file was originally drafted before Better Auth was actually installed and got that detail wrong; corrected here in Phase 1.
 - Every table has `createdAt` (`timestamp`, default now). Mutable tables also get `updatedAt`.
 - Tenant-scoped tables carry `organizationId` and, where relevant, `branchId` — both required, both RLS-enforced.
 - Prefer soft state (`status` enum column) over hard deletes where audit history matters (bookings, films, staff).
@@ -15,32 +15,37 @@
 
 ## 1. Auth & Tenancy (Phase 1)
 
-Better Auth's Organization plugin generates `user`, `session`, `account`, `organization`, `member`, and `invitation` automatically — do not hand-redefine these. Extend `organization` with the fields below.
+Better Auth's Organization plugin generates `user`, `session`, `account`, `organization`, `member`, and `invitation` automatically — do not hand-redefine these (regenerate via `npx @better-auth/cli generate` after changing `src/lib/auth.ts`'s plugin config, never hand-edit `db/schema/auth.ts` directly).
 
 ```ts
-// Extension fields on Better Auth's organization table
-organization: {
-  // ...Better Auth core fields (id, name, slug, etc.)
-  tenancyType: pgEnum('tenancy_type', ['independent', 'chain']),
-}
+// tenancyType — added via the organization plugin's `schema.organization.additionalFields`
+// option in src/lib/auth.ts, NOT by hand-editing the generated schema. Drizzle renders it
+// as a text column with an enum constraint (Better Auth's convention for enum-like fields).
+// ✅ Implemented (Phase 1 Task 2):
+tenancyType: text('tenancy_type', { enum: ['independent', 'chain'] }).notNull()
 
 // branch — a physical cinema location under an organization.
-// An "independent" organization has exactly one branch. A "chain" has multiple.
+// An "independent" organization has exactly one branch. A "chain" starts with one (its
+// head office) and adds more later (Phase 10 — branch *management* UI is out of scope here).
+// ✅ Implemented (Phase 1 Task 2), db/schema/branch.ts:
 export const branch = pgTable('branch', {
   id: uuid('id').primaryKey().defaultRandom(),
-  organizationId: uuid('organization_id').notNull().references(() => organization.id),
+  organizationId: text('organization_id').notNull().references(() => organization.id, { onDelete: 'cascade' }),
   name: text('name').notNull(),
   address: text('address'),
-  createdAt: timestamp('created_at').defaultNow(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
 });
-// [RLS]
+// [RLS] — not yet applied, deferred to Task 5 (consolidated pass over every
+// tenant-scoped table accumulated by then)
 
 // audit_log — required since Better Auth doesn't generate one (concerns/security.md)
+// ⏳ Not yet implemented — Phase 1 Task 6. organizationId/actorUserId are `text`
+// (referencing organization.id/user.id), not `uuid` — corrected from the original draft.
 export const auditLog = pgTable('audit_log', {
   id: uuid('id').primaryKey().defaultRandom(),
-  organizationId: uuid('organization_id').notNull(),
+  organizationId: text('organization_id').notNull(),
   branchId: uuid('branch_id'),
-  actorUserId: uuid('actor_user_id').notNull(),
+  actorUserId: text('actor_user_id').notNull(),
   action: text('action').notNull(),           // e.g. 'refund.create', 'role.change'
   resourceType: text('resource_type').notNull(),
   resourceId: uuid('resource_id'),

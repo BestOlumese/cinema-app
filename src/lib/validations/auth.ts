@@ -14,6 +14,10 @@ export const signUpSchema = z
       .trim()
       .min(1, "Cinema name is required")
       .max(100),
+    tenancyType: z.enum(["independent", "chain"], {
+      error: "Choose a cinema type",
+    }),
+    branchName: z.string().trim().max(100).optional(),
     acceptTerms: z.boolean().refine((val) => val === true, {
       error: "You must accept the Terms of Service to continue",
     }),
@@ -21,7 +25,15 @@ export const signUpSchema = z
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
     path: ["confirmPassword"],
-  });
+  })
+  .refine(
+    (data) =>
+      data.tenancyType !== "chain" || (data.branchName?.trim().length ?? 0) > 0,
+    {
+      message: "Head office name is required",
+      path: ["branchName"],
+    },
+  );
 
 export type SignUpValues = z.infer<typeof signUpSchema>;
 
