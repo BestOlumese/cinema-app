@@ -2,11 +2,11 @@
 
 > Read this file first, every session. Update it last, every session.
 
-## Current Phase: 0 — Infrastructure & Foundation Setup
+## Current Phase: 1 — Core Auth & Multi-Tenancy
 
 ## Phase Checklist
 
-- [ ] **Phase 0** — Infrastructure & Foundation Setup
+- [x] **Phase 0** — Infrastructure & Foundation Setup — `APPROVED: PHASE 0` received 2026-07-20
 - [ ] **Phase 1** — Core Auth & Multi-Tenancy
 - [ ] **Phase 2** — Film & Session Management
 - [ ] **Phase 3** — Ticketing & Booking (seat maps, tiered pricing, real-time locking)
@@ -114,6 +114,10 @@
   - [x] Inngest runs a test function successfully
   - [x] `ENV.md` lists every env var used
 - Notes: **Phase 0 self-check is complete but NOT yet approved.** Per AGENTS.md §0.7, Phase 1 cannot start — not even scaffolding — until the human types the exact approval string `APPROVED: PHASE 0`. Waiting on that before touching anything Phase 1-scoped (Core Auth & Multi-Tenancy).
+
+### 2026-07-20 — Phase 1
+- `APPROVED: PHASE 0` received from the human — exact string, per AGENTS.md §0.7. Phase 1 (Core Auth & Multi-Tenancy) begins. Human asked to work one task at a time, asking questions whenever something is unclear rather than assuming.
+- Starting Task 1: self-serve signup flow (account + organization creation in one flow, no manual approval gate).
 
 <!--
 Format:
