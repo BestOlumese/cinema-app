@@ -2,22 +2,12 @@ import { z } from "zod";
 
 export const signUpSchema = z
   .object({
-    name: z.string().trim().min(1, "Name is required").max(100),
     email: z.email("Enter a valid email address"),
     password: z
       .string()
       .min(8, "Password must be at least 8 characters")
       .max(128),
     confirmPassword: z.string(),
-    organizationName: z
-      .string()
-      .trim()
-      .min(1, "Cinema name is required")
-      .max(100),
-    tenancyType: z.enum(["independent", "chain"], {
-      error: "Choose a cinema type",
-    }),
-    branchName: z.string().trim().max(100).optional(),
     acceptTerms: z.boolean().refine((val) => val === true, {
       error: "You must accept the Terms of Service to continue",
     }),
@@ -25,15 +15,7 @@ export const signUpSchema = z
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
     path: ["confirmPassword"],
-  })
-  .refine(
-    (data) =>
-      data.tenancyType !== "chain" || (data.branchName?.trim().length ?? 0) > 0,
-    {
-      message: "Head office name is required",
-      path: ["branchName"],
-    },
-  );
+  });
 
 export type SignUpValues = z.infer<typeof signUpSchema>;
 
@@ -43,3 +25,28 @@ export const signInSchema = z.object({
 });
 
 export type SignInValues = z.infer<typeof signInSchema>;
+
+export const onboardingSchema = z
+  .object({
+    name: z.string().trim().min(1, "Name is required").max(100),
+    organizationName: z
+      .string()
+      .trim()
+      .min(1, "Cinema name is required")
+      .max(100),
+    tenancyType: z.enum(["independent", "chain"], {
+      error: "Choose a cinema type",
+    }),
+    branchName: z.string().trim().max(100).optional(),
+  })
+  .refine(
+    (data) =>
+      data.tenancyType !== "chain" ||
+      (data.branchName?.trim().length ?? 0) > 0,
+    {
+      message: "Head office name is required",
+      path: ["branchName"],
+    },
+  );
+
+export type OnboardingValues = z.infer<typeof onboardingSchema>;

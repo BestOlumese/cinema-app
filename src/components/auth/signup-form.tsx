@@ -18,76 +18,41 @@ import {
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/auth/password-input";
 import { PasswordStrengthMeter } from "@/components/auth/password-strength-meter";
-import { TenancyChoice } from "@/components/auth/tenancy-choice";
 import { authClient } from "@/lib/auth-client";
-import { slugify } from "@/lib/slug";
 import { signUpSchema, type SignUpValues } from "@/lib/validations/auth";
-
-async function createOrganizationWithUniqueSlug(values: SignUpValues) {
-  const base = slugify(values.organizationName) || "cinema";
-  let attempt = base;
-
-  for (let i = 0; i < 5; i++) {
-    const { data, error } = await authClient.organization.create({
-      name: values.organizationName,
-      slug: attempt,
-      tenancyType: values.tenancyType,
-      metadata:
-        values.tenancyType === "chain" && values.branchName
-          ? { branchName: values.branchName }
-          : undefined,
-    });
-
-    if (!error) return data;
-
-    if (error.code !== "ORGANIZATION_SLUG_ALREADY_TAKEN") {
-      throw new Error(error.message ?? "Couldn't create your cinema account");
-    }
-
-    attempt = `${base}-${Math.random().toString(36).slice(2, 6)}`;
-  }
-
-  throw new Error("Couldn't create your cinema account");
-}
 
 export function SignupForm() {
   const router = useRouter();
   const form = useForm<SignUpValues>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
-      name: "",
       email: "",
       password: "",
       confirmPassword: "",
-      organizationName: "",
-      tenancyType: undefined as unknown as SignUpValues["tenancyType"],
-      branchName: "",
       acceptTerms: false,
     },
   });
 
   const password = form.watch("password");
-  const tenancyType = form.watch("tenancyType");
 
   const signUpMutation = useMutation({
     mutationFn: async (values: SignUpValues) => {
-      const { error: signUpError } = await authClient.signUp.email({
-        name: values.name,
+      // Better Auth's user.name column is required — a real name is
+      // collected in onboarding step 1, this is just a placeholder until then.
+      const placeholderName = values.email.split("@")[0];
+
+      const { error } = await authClient.signUp.email({
+        name: placeholderName,
         email: values.email,
         password: values.password,
       });
 
-      if (signUpError) {
-        throw new Error(
-          signUpError.message ?? "Couldn't create your account",
-        );
+      if (error) {
+        throw new Error(error.message ?? "Couldn't create your account");
       }
-
-      await createOrganizationWithUniqueSlug(values);
     },
     onSuccess: () => {
-      toast.success("Welcome to CineSuite — your cinema account is ready.");
-      router.push("/dashboard");
+      router.push("/onboarding");
     },
     onError: (error) => {
       toast.error(error.message);
@@ -108,17 +73,6 @@ export function SignupForm() {
             Set up your cinema on CineSuite.
           </p>
         </div>
-
-        <Field data-invalid={!!form.formState.errors.name}>
-          <FieldLabel htmlFor="name">Your name</FieldLabel>
-          <Input
-            id="name"
-            autoComplete="name"
-            className="h-11"
-            {...form.register("name")}
-          />
-          <FieldError errors={[form.formState.errors.name]} />
-        </Field>
 
         <Field data-invalid={!!form.formState.errors.email}>
           <FieldLabel htmlFor="email">Email</FieldLabel>
@@ -155,40 +109,6 @@ export function SignupForm() {
           <FieldError errors={[form.formState.errors.confirmPassword]} />
         </Field>
 
-        <Field data-invalid={!!form.formState.errors.organizationName}>
-          <FieldLabel htmlFor="organizationName">Cinema name</FieldLabel>
-          <Input
-            id="organizationName"
-            autoComplete="organization"
-            className="h-11"
-            {...form.register("organizationName")}
-          />
-          <FieldError errors={[form.formState.errors.organizationName]} />
-        </Field>
-
-        <Field data-invalid={!!form.formState.errors.tenancyType}>
-          <FieldLabel>Cinema type</FieldLabel>
-          <TenancyChoice
-            value={tenancyType}
-            onChange={(value) =>
-              form.setValue("tenancyType", value, { shouldValidate: true })
-            }
-          />
-          <FieldError errors={[form.formState.errors.tenancyType]} />
-        </Field>
-
-        {tenancyType === "chain" && (
-          <Field data-invalid={!!form.formState.errors.branchName}>
-            <FieldLabel htmlFor="branchName">Head office name</FieldLabel>
-            <Input
-              id="branchName"
-              className="h-11"
-              {...form.register("branchName")}
-            />
-            <FieldError errors={[form.formState.errors.branchName]} />
-          </Field>
-        )}
-
         <Field
           orientation="horizontal"
           data-invalid={!!form.formState.errors.acceptTerms}
@@ -220,7 +140,10 @@ export function SignupForm() {
 
         <p className="text-center text-sm text-muted-foreground">
           Already have an account?{" "}
-          <Link href="/signin" className="font-medium text-primary underline-offset-4 hover:underline">
+          <Link
+            href="/signin"
+            className="font-medium text-primary underline-offset-4 hover:underline"
+          >
             Sign in
           </Link>
         </p>
