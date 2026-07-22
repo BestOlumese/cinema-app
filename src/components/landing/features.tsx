@@ -1,4 +1,4 @@
-import { BarChart3, Popcorn, Store, Ticket, Users } from "lucide-react";
+import { BarChart3, Building2, Popcorn, Store, Ticket, Users } from "lucide-react";
 
 const FEATURES = [
   {
@@ -30,6 +30,12 @@ const FEATURES = [
     title: "Back-Office & Reporting",
     description:
       "Revenue, attendance, and occupancy reporting across every branch.",
+  },
+  {
+    icon: Building2,
+    title: "Multi-Site & Chain Management",
+    description:
+      "Circuit-wide reporting and centralized pricing/film templates branches can inherit or override.",
   },
 ];
 

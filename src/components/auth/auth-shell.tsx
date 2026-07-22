@@ -13,8 +13,10 @@ export function AuthShell({
         <p className="text-sm text-muted-foreground">{tagline}</p>
       </div>
 
-      <div className="flex min-h-0 flex-1 justify-center overflow-y-auto px-4 py-12 sm:px-6">
-        <div className="w-full max-w-sm">{children}</div>
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        <div className="flex min-h-full items-center justify-center px-4 py-12 sm:px-6">
+          <div className="w-full max-w-sm">{children}</div>
+        </div>
       </div>
     </div>
   );

@@ -156,6 +156,13 @@
 - `tsc --noEmit`, `eslint .`, `npm run build`, and the full Vitest suite all clean.
 - Notes: Task 1 and Task 2 are now in their final UX shape. Next up — Task 3 (full role/permission mapping for all six roles), as before.
 
+### 2026-07-22 — Phase 1 (UX rework, round 2)
+- Human found a real bug in the previous round's centering: the auth split-screen's right side wasn't vertically centered, just stuck at the top. Root cause: `items-center` had been removed to fix the earlier "content clipped at top" scroll bug, but that overcorrected. Fixed properly this time — the scrollable outer container has no `items-center` (correct, avoids the clipping bug), but an inner wrapper uses `min-h-full flex items-center justify-center`: `min-height` (not a fixed `height`) lets the wrapper grow taller than the container when content overflows instead of clipping it, while still centering when content fits. Verified both cases programmatically (viewport-vs-card-center diff of 0px when it fits; heading fully visible with no top-clipping when it doesn't) — not just eyeballed.
+- Human also asked for a fuller landing page (more sections, 6 features not 5, "clean designs"). Before building, flagged that a requested testimonials section had no real content behind it — asked rather than fabricating fake customer quotes, which would misrepresent the product as already having users. Human agreed to swap it for a "Built for cinemas in Nigeria" trust section instead (offline-first POS, Paystack/USSD/mobile money, WhatsApp, NFVCB compliance — all real claims already in `PRODUCT_REQUIREMENTS.md`, not invented). Same question for pricing: no real ₦ figures exist yet, so the pricing section describes the model (flat monthly subscription, no per-ticket commission, Independent vs. Chain feature comparison) without fabricating numbers.
+- Added: 6th feature card (Multi-Site & Chain Management, ties directly to Task 2's tenancy work), the localization/trust section, a 3-step "How it works" section, the pricing comparison (two plans, no numbers, both CTA to `/signup`), and an FAQ accordion (`shadcn add accordion` — clean, no `dark:` classes needed stripping this time) with answers grounded only in facts already stated in `PRODUCT_REQUIREMENTS.md`/`DATABASE.md`, not invented claims about contracts or fees that aren't decided yet.
+- Verified: FAQ accordion actually expands/collapses (not just present in the DOM), no horizontal scroll at 375/768/1024/1440px, zero console errors, `tsc`/`eslint`/`vitest`/production build all clean.
+- Notes: Landing page now has 7 sections (hero, features, localization, how-it-works, pricing, FAQ, footer) plus the sticky nav. Next up — Task 3 (full role/permission mapping), unchanged.
+
 <!--
 Format:
 ### YYYY-MM-DD — Phase N
