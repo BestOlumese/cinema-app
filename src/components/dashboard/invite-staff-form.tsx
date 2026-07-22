@@ -53,7 +53,10 @@ export function InviteStaffForm({
     resolver: zodResolver(inviteSchema),
     defaultValues: {
       email: "",
-      role: undefined as unknown as InviteValues["role"],
+      // "" (not undefined) keeps the Select controlled from the first
+      // render — Base UI warns if a Select's value switches from
+      // uncontrolled (undefined) to controlled after mount.
+      role: "" as unknown as InviteValues["role"],
     },
   });
 
