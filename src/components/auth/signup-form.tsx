@@ -1,11 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { MailCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -22,7 +23,7 @@ import { authClient } from "@/lib/auth-client";
 import { signUpSchema, type SignUpValues } from "@/lib/validations/auth";
 
 export function SignupForm() {
-  const router = useRouter();
+  const [sentTo, setSentTo] = useState<string | null>(null);
   const form = useForm<SignUpValues>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
@@ -45,19 +46,39 @@ export function SignupForm() {
         name: placeholderName,
         email: values.email,
         password: values.password,
+        callbackURL: "/onboarding",
       });
 
       if (error) {
         throw new Error(error.message ?? "Couldn't create your account");
       }
     },
-    onSuccess: () => {
-      router.push("/onboarding");
+    onSuccess: (_data, values) => {
+      setSentTo(values.email);
     },
     onError: (error) => {
       toast.error(error.message);
     },
   });
+
+  if (sentTo) {
+    return (
+      <div className="space-y-4 text-center">
+        <div className="mx-auto flex size-11 items-center justify-center rounded-full bg-accent">
+          <MailCheck className="size-5 text-accent-foreground" />
+        </div>
+        <div className="space-y-1">
+          <h2 className="text-2xl font-semibold text-foreground">
+            Check your email
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            We sent a verification link to <strong>{sentTo}</strong>. Click
+            it to finish setting up your account.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <form

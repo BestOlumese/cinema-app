@@ -3,6 +3,7 @@ import {
   boxOffice,
   cashier,
   concessionsStaff,
+  MANAGER_INVITABLE_ROLES,
   manager,
   siteAdmin,
   statement,
@@ -104,6 +105,19 @@ describe("Manager", () => {
   it("cannot override pricing or change staff roles — Site Admin only", () => {
     expect(manager.authorize({ pricing: ["override"] }).success).toBe(false);
     expect(manager.authorize({ staffRole: ["change"] }).success).toBe(false);
+  });
+});
+
+describe("MANAGER_INVITABLE_ROLES — Task 4 role-ceiling for Manager-issued invites", () => {
+  it("allows Manager to invite Cashier, Concessions Staff, and Box Office", () => {
+    expect(MANAGER_INVITABLE_ROLES.has("cashier")).toBe(true);
+    expect(MANAGER_INVITABLE_ROLES.has("concessionsStaff")).toBe(true);
+    expect(MANAGER_INVITABLE_ROLES.has("boxOffice")).toBe(true);
+  });
+
+  it("forbids Manager from inviting a peer or superior", () => {
+    expect(MANAGER_INVITABLE_ROLES.has("manager")).toBe(false);
+    expect(MANAGER_INVITABLE_ROLES.has("siteAdmin")).toBe(false);
   });
 });
 

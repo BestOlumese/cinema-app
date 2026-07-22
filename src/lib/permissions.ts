@@ -85,3 +85,8 @@ export const concessionsStaff = ac.newRole({
 export const cashier = ac.newRole({
   sale: ["create"],
 });
+
+// Roles a Manager is allowed to assign when inviting staff (Task 4) — Manager
+// can't create a peer or superior; Manager/Site Admin invites stay Site
+// Admin-only, enforced server-side in `beforeCreateInvitation` (src/lib/auth.ts).
+export const MANAGER_INVITABLE_ROLES = new Set(["cashier", "concessionsStaff", "boxOffice"]);

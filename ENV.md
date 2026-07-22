@@ -76,15 +76,15 @@
 
 ## Email — Nodemailer / SMTP
 
-> **Open decision:** SMTP backend provider not yet confirmed (options discussed: Brevo, Zoho/Google Workspace, Amazon SES). Variable names below are provider-agnostic; fill in once decided.
+> **Provider: Gmail SMTP** (chosen during Phase 1 Task 4 — email verification + staff invitations). Uses a Gmail App Password, not the account password. `SMTP_PASSWORD` is a 16-character app password; some tooling (e.g. dotenv) is fine with the literal spaces Google displays it with, but treat it as opaque and never reformat it.
 
 | Variable | Purpose | Public? |
 |---|---|---|
-| `SMTP_HOST` | SMTP server host | No |
-| `SMTP_PORT` | SMTP server port | No |
-| `SMTP_USER` | SMTP auth username | No |
-| `SMTP_PASSWORD` | SMTP auth password/app password | No |
-| `SMTP_FROM_EMAIL` | "From" address for transactional email | No |
+| `SMTP_HOST` | SMTP server host — `smtp.gmail.com` | No |
+| `SMTP_PORT` | SMTP server port — `587` (STARTTLS) | No |
+| `SMTP_USER` | Gmail address used to authenticate | No |
+| `SMTP_PASSWORD` | Gmail App Password (not the account password) | No |
+| `SMTP_FROM_EMAIL` | "From" address for transactional email (same Gmail address) | No |
 
 ## File Storage — UploadThing
 
@@ -111,10 +111,7 @@
 ## Still Open
 
 1. Final choice between **Pusher and Ably** — both variable sets are documented above; delete the unused one once decided.
-2. **SMTP provider** for Nodemailer.
-3. **`BETTER_AUTH_URL` / `NEXT_PUBLIC_APP_URL` for Preview** are currently pinned to the stable production alias (`https://cinema-app-psi-sage.vercel.app`) as a placeholder — real Preview deployments get a unique per-deployment URL, so Better Auth's `trustedOrigins` will need a wildcard/pattern for `*.vercel.app` preview URLs before auth is actually exercised in a preview deployment. Deferred to Phase 1.
-
-Both (1) and (2) should be resolved before Phase 0 is marked complete.
+2. **`BETTER_AUTH_URL` / `NEXT_PUBLIC_APP_URL` for Preview** are currently pinned to the stable production alias (`https://cinema-app-psi-sage.vercel.app`) as a placeholder — real Preview deployments get a unique per-deployment URL, so Better Auth's `trustedOrigins` will need a wildcard/pattern for `*.vercel.app` preview URLs before auth is actually exercised in a preview deployment. Deferred to Phase 1.
 
 ## Current Values (Vercel)
 
@@ -128,3 +125,5 @@ All variables below are set as Encrypted env vars in the Vercel project (`bests-
 `POWERSYNC_INSTANCE_URL` / `NEXT_PUBLIC_POWERSYNC_URL` are set (`https://6a5d1af6367771958b490678.powersync.journeyapps.com`). Connection-only per Phase 0 scope — no Sync Rules yet, so `POWERSYNC_JWT_PRIVATE_KEY` / `POWERSYNC_JWT_KID` aren't needed until Phase 4. A dedicated read-only Postgres role (`powersync_role`, `REPLICATION` + `SELECT` on `public` schema only) and a publication (`powersync`, scoped to `public` schema tables only) were created directly on Neon for this — **not** the `neondb_owner` admin credentials.
 
 `INNGEST_EVENT_KEY` / `INNGEST_SIGNING_KEY` are set. Verified locally with the Inngest Dev Server (`npx inngest-cli dev`) using `INNGEST_DEV=1` — a temporary test function ran and completed successfully, confirmed via the dev server's own run-status API, then removed. `src/inngest/functions.ts` currently exports an empty array; the first real function lands with whichever Phase actually needs a background job.
+
+`SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASSWORD` / `SMTP_FROM_EMAIL` are set in Vercel (all 3 environments) and locally in `.env` (Gmail SMTP, Phase 1 Task 4). Verified end-to-end with real inbox delivery: sign-up verification email, invitation email, both received and clicked in a real Gmail inbox.

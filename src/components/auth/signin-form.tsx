@@ -25,6 +25,11 @@ export function SigninForm() {
     mutationFn: async (values: SignInValues) => {
       const { error } = await authClient.signIn.email(values);
       if (error) {
+        if (error.code === "EMAIL_NOT_VERIFIED") {
+          throw new Error(
+            "Please verify your email first — we've sent a new verification link to your inbox.",
+          );
+        }
         throw new Error(error.message ?? "Couldn't sign you in");
       }
     },
